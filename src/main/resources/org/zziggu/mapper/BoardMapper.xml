@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+ <mapper namespace="org.zziggu.mapper.BoardMapper">
+ 
+	<sql id="search">
+		<if test="types != null">
+ 		<foreach collection="types" item="item" open="AND (" close=")" separator="OR">
+ 			<if test="item == 't'.toString()">
+ 			title like concat('%',#{keyword},'%')
+ 			</if>
+ 			<if test="item == 'c'.toString()">
+ 			content like concat('%',#{keyword},'%')
+ 			</if>
+ 			<if test="item == 'w'.toString()">
+ 			writer like concat('%',#{keyword},'%')
+ 			</if>
+ 		</foreach>
+ 		</if>
+		
+	</sql>
+ 	
+ 
+ 	<select id="getList" resultType="org.zziggu.domain.Board">
+ 		
+ 		select*
+ 		from tbl_board
+ 		where 1 =1
+ 		
+ 		<include refid="search"></include>
+ 		
+ 		and bno > (select max(bno)-100000 from tbl_board)
+ 		 order by bno desc limit #{skip},10
+ 		
+ 	</select>
+ 	
+ 	<insert id="insert">
+ 		<![CDATA[
+ 		insert into tbl_board (title,writer,content)
+ 		values(#{title},#{writer},#{content})
+ 		]]>
+ 	</insert>
+ 	
+ 	<delete id="delete">
+ 		<![CDATA[
+ 			delete from tbl_board where bno = #{bno}
+ 		]]>
+ 	</delete>
+ 	
+ 	<select id="get" resultType="org.zziggu.domain.Board">
+ 		<![CDATA[
+ 			select * from tbl_board where bno = #{bno}
+ 		]]>
+ 	</select>
+ 	
+ 	<select id="count" resultType="int">
+ 
+ 			select count(*) 
+ 			from tbl_board
+ 			where 1 =1
+ 			<include refid="search"></include>
+ 			
+ 			and bno > (select max(bno)-100000 from tbl_board)
+ 
+ 	</select>
+ 	
+ 	<update id="update">
+ 		<![CDATA[
+ 			update tbl_board set title = #{title}, writer=#{writer}, content = #{content} where bno =#{bno}
+ 		]]>
+ 	</update>
+ 	
+ 	
+ 
+ </mapper>
